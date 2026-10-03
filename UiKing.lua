@@ -1,82 +1,83 @@
--- Path Sniper with Smooth Scrollable List & Quick Tools
+-- Path Sniper GUI (Full Working Interface)
 local Workspace = game:GetService("Workspace")
 local Players = game:GetService("Players")
 
 local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
--- 1. إنشاء الشاشة الأساسية
+-- 1. الشاشة الأساسية
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "PathSniper_ScrollGUI"
+ScreenGui.Name = "PathSniperMaster_GUI"
 ScreenGui.Parent = PlayerGui
 ScreenGui.ResetOnSpawn = false
 
--- 2. المربع الأسود الرئيسي (القائمة)
+-- 2. المربع الأسود الرئيسي (الواجهة الكاملة)
 local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 320, 0, 380)
-MainFrame.Position = UDim2.new(0.02, 0, 0.25, 0) -- يسار الشاشة
-MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
+MainFrame.Name = "MainFrame"
+MainFrame.Size = UDim2.new(0, 340, 0, 400)
+MainFrame.Position = UDim2.new(0.5, -170, 0.3, 0) -- منتصف الشاشة
+MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 22)
 MainFrame.BorderSizePixel = 0
 MainFrame.Active = true
-MainFrame.Draggable = true -- يمكنك تحريك القائمة بأي مكان
+MainFrame.Draggable = true -- تحريك المربع الأسود بأي مكان
 MainFrame.Parent = ScreenGui
 
-local FrameCorner = Instance.new("UICorner")
-FrameCorner.CornerRadius = UDim.new(0, 8)
-FrameCorner.Parent = MainFrame
+local MainCorner = Instance.new("UICorner")
+MainCorner.CornerRadius = UDim.new(0, 8)
+MainCorner.Parent = MainFrame
 
--- العنوان العلوي
-local Title = Instance.new("TextLabel")
-Title.Size = UDim2.new(1, 0, 0, 35)
-Title.BackgroundColor3 = Color3.fromRGB(22, 22, 30)
-Title.Text = " 🎯 PATH SNIPER"
-Title.TextColor3 = Color3.fromRGB(0, 230, 255)
-Title.TextSize = 13
-Title.Font = Enum.Font.GothamBold
-Title.TextXAlignment = Enum.TextXAlignment.Left
-Title.Parent = MainFrame
+-- الشريط العلوي والعنوان
+local TopTitle = Instance.new("TextLabel")
+TopTitle.Size = UDim2.new(1, 0, 0, 40)
+TopTitle.BackgroundColor3 = Color3.fromRGB(22, 22, 32)
+TopTitle.Text = "  🎯 Path Sniper & Tracker"
+TopTitle.TextColor3 = Color3.fromRGB(0, 230, 255)
+TopTitle.TextSize = 13
+TopTitle.Font = Enum.Font.GothamBold
+TopTitle.TextXAlignment = Enum.TextXAlignment.Left
+TopTitle.Parent = MainFrame
 
 local TitleCorner = Instance.new("UICorner")
 TitleCorner.CornerRadius = UDim.new(0, 8)
-TitleCorner.Parent = Title
+TitleCorner.Parent = TopTitle
 
--- زر Research / Refresh
+-- زر Research (داخل المربع الأسود)
 local ResearchBtn = Instance.new("TextButton")
-ResearchBtn.Size = UDim2.new(0, 100, 0, 26)
-ResearchBtn.Position = UDim2.new(1, -210, 0, 4.5)
+ResearchBtn.Size = UDim2.new(0, 90, 0, 28)
+ResearchBtn.Position = UDim2.new(1, -195, 0, 6)
 ResearchBtn.BackgroundColor3 = Color3.fromRGB(0, 130, 240)
 ResearchBtn.Text = "🔍 Research"
 ResearchBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 ResearchBtn.TextSize = 10
 ResearchBtn.Font = Enum.Font.GothamBold
-ResearchBtn.Parent = Title
+ResearchBtn.Parent = TopTitle
 
 local RCorner = Instance.new("UICorner")
 RCorner.CornerRadius = UDim.new(0, 5)
 RCorner.Parent = ResearchBtn
 
--- زر GMP (الجديد فقط)
+-- زر GMP (داخل المربع الأسود)
 local GMPBtn = Instance.new("TextButton")
-GMPBtn.Size = UDim2.new(0, 95, 0, 26)
-GMPBtn.Position = UDim2.new(1, -102, 0, 4.5)
+GMPBtn.Size = UDim2.new(0, 90, 0, 28)
+GMPBtn.Position = UDim2.new(1, -98, 0, 6)
 GMPBtn.BackgroundColor3 = Color3.fromRGB(160, 40, 210)
 GMPBtn.Text = "⚡ GMP"
 GMPBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 GMPBtn.TextSize = 10
 GMPBtn.Font = Enum.Font.GothamBold
-GMPBtn.Parent = Title
+GMPBtn.Parent = TopTitle
 
 local GCorner = Instance.new("UICorner")
 GCorner.CornerRadius = UDim.new(0, 5)
 GCorner.Parent = GMPBtn
 
--- 3. مربع التمرير (ScrollingFrame) معالجة مشكلة الثبات
+-- 3. قائمة التمرير والرفع داخل المربع الأسود
 local ScrollList = Instance.new("ScrollingFrame")
 ScrollList.Size = UDim2.new(1, -16, 1, -50)
-ScrollList.Position = UDim2.new(0, 8, 0, 42)
+ScrollList.Position = UDim2.new(0, 8, 0, 45)
 ScrollList.BackgroundTransparency = 1
 ScrollList.BorderSizePixel = 0
-ScrollList.CanvasSize = UDim2.new(0, 0, 0, 0) -- سيتعدل تلقائياً
+ScrollList.CanvasSize = UDim2.new(0, 0, 0, 0)
 ScrollList.ScrollBarThickness = 6
 ScrollList.ScrollBarImageColor3 = Color3.fromRGB(0, 200, 255)
 ScrollList.Parent = MainFrame
@@ -86,7 +87,7 @@ UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 UIListLayout.Padding = UDim.new(0, 5)
 UIListLayout.Parent = ScrollList
 
--- تحديث حجم التمرير تلقائياً عند إضافة أي عنصر عشان ترفع وتنزل براحتك
+-- تعديل التمرير التلقائي للأسفل والأعلى
 UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
     ScrollList.CanvasSize = UDim2.new(0, 0, 0, UIListLayout.AbsoluteContentSize.Y + 10)
 end)
@@ -118,13 +119,12 @@ end
 
 local registeredObjects = {}
 
--- دالة إضافة عنصر داخل القائمة السوداء
 local function addEntryToList(obj)
     local fullPath = getFullPath(obj)
 
     local row = Instance.new("Frame")
-    row.Size = UDim2.new(1, -6, 0, 32)
-    row.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+    row.Size = UDim2.new(1, -8, 0, 32)
+    row.BackgroundColor3 = Color3.fromRGB(25, 25, 36)
     row.BorderSizePixel = 0
     row.Parent = ScrollList
 
@@ -145,8 +145,8 @@ local function addEntryToList(obj)
     label.Parent = row
 
     local copyBtn = Instance.new("TextButton")
-    copyBtn.Size = UDim2.new(0, 70, 0, 22)
-    copyBtn.Position = UDim2.new(1, -74, 0.5, -11)
+    copyBtn.Size = UDim2.new(0, 72, 0, 22)
+    copyBtn.Position = UDim2.new(1, -76, 0.5, -11)
     copyBtn.BackgroundColor3 = Color3.fromRGB(0, 140, 220)
     copyBtn.Text = "Copy Path"
     copyBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -176,7 +176,6 @@ local function clearList()
     end
 end
 
--- جلب العناصر
 local function getAllObjects()
     local list = {}
     for _, desc in pairs(Workspace:GetDescendants()) do
@@ -187,7 +186,7 @@ local function getAllObjects()
     return list
 end
 
--- زر Research
+-- تشغيل زر Research
 ResearchBtn.MouseButton1Click:Connect(function()
     clearList()
     registeredObjects = {}
@@ -197,13 +196,9 @@ ResearchBtn.MouseButton1Click:Connect(function()
         registeredObjects[obj] = true
         addEntryToList(obj)
     end
-
-    -- نزول التمرير لآسفل القائمة لرؤية أحدث الأشياء تلقائياً
-    task.wait(0.1)
-    ScrollList.CanvasPosition = Vector2.new(0, ScrollList.CanvasSize.Y.Offset)
 end)
 
--- زر GMP (الجديد فقط)
+-- تشغيل زر GMP
 GMPBtn.MouseButton1Click:Connect(function()
     clearList()
 
@@ -224,8 +219,4 @@ GMPBtn.MouseButton1Click:Connect(function()
     for _, obj in pairs(newObjects) do
         addEntryToList(obj)
     end
-
-    -- الانقاذ للأسفل لرؤية الجديد
-    task.wait(0.1)
-    ScrollList.CanvasPosition = Vector2.new(0, ScrollList.CanvasSize.Y.Offset)
 end)
