@@ -1,98 +1,63 @@
--- Path Sniper GUI (Full Working Interface)
+-- Transparent Path Tracker & Billboard ESP Sniper
 local Workspace = game:GetService("Workspace")
 local Players = game:GetService("Players")
 
 local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
--- 1. الشاشة الأساسية
+-- 1. شاشات التحكم العُلوية البسيطة (Research & GMP)
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "PathSniperMaster_GUI"
+ScreenGui.Name = "PathTracker_Billboard_GUI"
 ScreenGui.Parent = PlayerGui
 ScreenGui.ResetOnSpawn = false
 
--- 2. المربع الأسود الرئيسي (الواجهة الكاملة)
-local MainFrame = Instance.new("Frame")
-MainFrame.Name = "MainFrame"
-MainFrame.Size = UDim2.new(0, 340, 0, 400)
-MainFrame.Position = UDim2.new(0.5, -170, 0.3, 0) -- منتصف الشاشة
-MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 22)
-MainFrame.BorderSizePixel = 0
-MainFrame.Active = true
-MainFrame.Draggable = true -- تحريك المربع الأسود بأي مكان
-MainFrame.Parent = ScreenGui
+local TopBar = Instance.new("Frame")
+TopBar.Size = UDim2.new(0, 220, 0, 40)
+TopBar.Position = UDim2.new(0.5, -110, 0, 15)
+TopBar.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
+TopBar.BorderSizePixel = 0
+TopBar.Active = true
+TopBar.Draggable = true
+TopBar.Parent = ScreenGui
 
-local MainCorner = Instance.new("UICorner")
-MainCorner.CornerRadius = UDim.new(0, 8)
-MainCorner.Parent = MainFrame
+local BarCorner = Instance.new("UICorner")
+BarCorner.CornerRadius = UDim.new(0, 8)
+BarCorner.Parent = TopBar
 
--- الشريط العلوي والعنوان
-local TopTitle = Instance.new("TextLabel")
-TopTitle.Size = UDim2.new(1, 0, 0, 40)
-TopTitle.BackgroundColor3 = Color3.fromRGB(22, 22, 32)
-TopTitle.Text = "  🎯 Path Sniper & Tracker"
-TopTitle.TextColor3 = Color3.fromRGB(0, 230, 255)
-TopTitle.TextSize = 13
-TopTitle.Font = Enum.Font.GothamBold
-TopTitle.TextXAlignment = Enum.TextXAlignment.Left
-TopTitle.Parent = MainFrame
-
-local TitleCorner = Instance.new("UICorner")
-TitleCorner.CornerRadius = UDim.new(0, 8)
-TitleCorner.Parent = TopTitle
-
--- زر Research (داخل المربع الأسود)
 local ResearchBtn = Instance.new("TextButton")
-ResearchBtn.Size = UDim2.new(0, 90, 0, 28)
-ResearchBtn.Position = UDim2.new(1, -195, 0, 6)
-ResearchBtn.BackgroundColor3 = Color3.fromRGB(0, 130, 240)
+ResearchBtn.Size = UDim2.new(0, 95, 0, 28)
+ResearchBtn.Position = UDim2.new(0, 8, 0.5, -14)
+ResearchBtn.BackgroundColor3 = Color3.fromRGB(0, 140, 240)
 ResearchBtn.Text = "🔍 Research"
 ResearchBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 ResearchBtn.TextSize = 10
 ResearchBtn.Font = Enum.Font.GothamBold
-ResearchBtn.Parent = TopTitle
+ResearchBtn.Parent = TopBar
 
 local RCorner = Instance.new("UICorner")
 RCorner.CornerRadius = UDim.new(0, 5)
 RCorner.Parent = ResearchBtn
 
--- زر GMP (داخل المربع الأسود)
 local GMPBtn = Instance.new("TextButton")
-GMPBtn.Size = UDim2.new(0, 90, 0, 28)
-GMPBtn.Position = UDim2.new(1, -98, 0, 6)
+GMPBtn.Size = UDim2.new(0, 95, 0, 28)
+GMPBtn.Position = UDim2.new(1, -103, 0.5, -14)
 GMPBtn.BackgroundColor3 = Color3.fromRGB(160, 40, 210)
 GMPBtn.Text = "⚡ GMP"
 GMPBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 GMPBtn.TextSize = 10
 GMPBtn.Font = Enum.Font.GothamBold
-GMPBtn.Parent = TopTitle
+GMPBtn.Parent = TopBar
 
 local GCorner = Instance.new("UICorner")
 GCorner.CornerRadius = UDim.new(0, 5)
 GCorner.Parent = GMPBtn
 
--- 3. قائمة التمرير والرفع داخل المربع الأسود
-local ScrollList = Instance.new("ScrollingFrame")
-ScrollList.Size = UDim2.new(1, -16, 1, -50)
-ScrollList.Position = UDim2.new(0, 8, 0, 45)
-ScrollList.BackgroundTransparency = 1
-ScrollList.BorderSizePixel = 0
-ScrollList.CanvasSize = UDim2.new(0, 0, 0, 0)
-ScrollList.ScrollBarThickness = 6
-ScrollList.ScrollBarImageColor3 = Color3.fromRGB(0, 200, 255)
-ScrollList.Parent = MainFrame
+-- مجلد يحتوي كل الـ BillboardGuis الشفافة لتسهيل الحذف والإنشاء
+local BillboardHolder = Instance.new("Folder")
+BillboardHolder.Name = "Active_Billboards"
+BillboardHolder.Parent = ScreenGui
 
-local UIListLayout = Instance.new("UIListLayout")
-UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-UIListLayout.Padding = UDim.new(0, 5)
-UIListLayout.Parent = ScrollList
-
--- تعديل التمرير التلقائي للأسفل والأعلى
-UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-    ScrollList.CanvasSize = UDim2.new(0, 0, 0, UIListLayout.AbsoluteContentSize.Y + 10)
-end)
-
--- 4. الدوال والخدمات
+-- 2. دالة جلب المسار الكامل الكود
 local function getFullPath(obj)
     local path = obj.Name
     local parent = obj.Parent
@@ -117,42 +82,53 @@ local function copyPath(text)
     end
 end
 
-local registeredObjects = {}
+-- 3. دالة تعليق الـ BillboardGui الشفاف المائي لتتبعه والمشي وراءه
+local function createTrackerBillboard(targetPart, sourceObj)
+    local fullPath = getFullPath(sourceObj)
 
-local function addEntryToList(obj)
-    local fullPath = getFullPath(obj)
+    local billboard = Instance.new("BillboardGui")
+    billboard.Name = "BBG_" .. sourceObj.Name
+    billboard.Adornee = targetPart
+    billboard.Size = UDim2.new(0, 170, 0, 55)
+    billboard.StudsOffset = Vector3.new(0, 3, 0)
+    billboard.AlwaysOnTop = true -- يظهر وراء الجدران لتقدر تمشي وراه
+    billboard.Parent = BillboardHolder
 
-    local row = Instance.new("Frame")
-    row.Size = UDim2.new(1, -8, 0, 32)
-    row.BackgroundColor3 = Color3.fromRGB(25, 25, 36)
-    row.BorderSizePixel = 0
-    row.Parent = ScrollList
+    -- الإطار الشفاف المائي
+    local mainFrame = Instance.new("Frame")
+    mainFrame.Size = UDim2.new(1, 0, 1, 0)
+    mainFrame.BackgroundColor3 = Color3.fromRGB(10, 15, 25)
+    mainFrame.BackgroundTransparency = 0.35 -- مائي شفاف
+    mainFrame.BorderSizePixel = 1
+    mainFrame.BorderColor3 = Color3.fromRGB(0, 230, 255)
+    mainFrame.Parent = billboard
 
-    local rowCorner = Instance.new("UICorner")
-    rowCorner.CornerRadius = UDim.new(0, 5)
-    rowCorner.Parent = row
+    local frameCorner = Instance.new("UICorner")
+    frameCorner.CornerRadius = UDim.new(0, 6)
+    frameCorner.Parent = mainFrame
 
-    local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(1, -85, 1, 0)
-    label.Position = UDim2.new(0, 8, 0, 0)
-    label.BackgroundTransparency = 1
-    label.Text = obj.Name
-    label.TextColor3 = Color3.fromRGB(220, 220, 220)
-    label.TextSize = 11
-    label.Font = Enum.Font.Gotham
-    label.TextXAlignment = Enum.TextXAlignment.Left
-    label.TextTruncate = Enum.TextTruncate.AtEnd
-    label.Parent = row
+    -- اسم العنصر الشفاف
+    local nameLabel = Instance.new("TextLabel")
+    nameLabel.Size = UDim2.new(1, -6, 0, 22)
+    nameLabel.Position = UDim2.new(0, 3, 0, 2)
+    nameLabel.BackgroundTransparency = 1
+    nameLabel.Text = "📍 " .. sourceObj.Name
+    nameLabel.TextColor3 = Color3.fromRGB(0, 255, 220)
+    nameLabel.TextSize = 11
+    nameLabel.Font = Enum.Font.GothamBold
+    nameLabel.TextTruncate = Enum.TextTruncate.AtEnd
+    nameLabel.Parent = mainFrame
 
+    -- زر النسخ المعلق في الهواء على الشيء نفسه
     local copyBtn = Instance.new("TextButton")
-    copyBtn.Size = UDim2.new(0, 72, 0, 22)
-    copyBtn.Position = UDim2.new(1, -76, 0.5, -11)
-    copyBtn.BackgroundColor3 = Color3.fromRGB(0, 140, 220)
-    copyBtn.Text = "Copy Path"
+    copyBtn.Size = UDim2.new(1, -10, 0, 20)
+    copyBtn.Position = UDim2.new(0, 5, 1, -23)
+    copyBtn.BackgroundColor3 = Color3.fromRGB(0, 130, 220)
+    copyBtn.Text = "📋 Copy Path"
     copyBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    copyBtn.TextSize = 9
+    copyBtn.TextSize = 10
     copyBtn.Font = Enum.Font.GothamBold
-    copyBtn.Parent = row
+    copyBtn.Parent = mainFrame
 
     local btnCorner = Instance.new("UICorner")
     btnCorner.CornerRadius = UDim.new(0, 4)
@@ -160,63 +136,71 @@ local function addEntryToList(obj)
 
     copyBtn.MouseButton1Click:Connect(function()
         copyPath(fullPath)
-        copyBtn.Text = "Copied!"
+        copyBtn.Text = "✅ Copied!"
         copyBtn.BackgroundColor3 = Color3.fromRGB(40, 180, 90)
         task.wait(0.8)
-        copyBtn.Text = "Copy Path"
-        copyBtn.BackgroundColor3 = Color3.fromRGB(0, 140, 220)
+        copyBtn.Text = "📋 Copy Path"
+        copyBtn.BackgroundColor3 = Color3.fromRGB(0, 130, 220)
     end)
 end
 
-local function clearList()
-    for _, child in pairs(ScrollList:GetChildren()) do
-        if child:IsA("Frame") then
-            child:Destroy()
-        end
-    end
+-- 4. إدارات المسح الشامل والتتبع المباشر
+local registeredObjects = {}
+
+local function clearAllBillboards()
+    BillboardHolder:ClearAllChildren()
 end
 
-local function getAllObjects()
-    local list = {}
+local function getValidGameTargets()
+    local targets = {}
     for _, desc in pairs(Workspace:GetDescendants()) do
         if desc ~= Workspace.CurrentCamera and not desc:IsA("Terrain") and desc ~= LocalPlayer.Character and not desc:IsDescendantOf(LocalPlayer.Character) then
-            table.insert(list, desc)
+            local part = nil
+            if desc:IsA("BasePart") then
+                part = desc
+            elseif desc:IsA("Model") then
+                part = desc.PrimaryPart or desc:FindFirstChildWhichIsA("BasePart", true)
+            end
+
+            if part then
+                table.insert(targets, {Object = desc, Part = part})
+            end
         end
     end
-    return list
+    return targets
 end
 
--- تشغيل زر Research
+-- زر Research: إظهار الـ BillboardGui الشفاف فوق كل شيء باللعبة لتمشي وراه
 ResearchBtn.MouseButton1Click:Connect(function()
-    clearList()
+    clearAllBillboards()
     registeredObjects = {}
 
-    local objects = getAllObjects()
-    for _, obj in pairs(objects) do
-        registeredObjects[obj] = true
-        addEntryToList(obj)
+    local list = getValidGameTargets()
+    for _, item in pairs(list) do
+        registeredObjects[item.Object] = true
+        createTrackerBillboard(item.Part, item.Object)
     end
 end)
 
--- تشغيل زر GMP
+-- زر GMP: حذف القديم وإبقاء الـ BillboardGui الشفاف فقط على الشيء الجديد لللحاق به وتتبعه
 GMPBtn.MouseButton1Click:Connect(function()
-    clearList()
+    clearAllBillboards()
 
-    local currentObjects = getAllObjects()
-    local newObjects = {}
+    local currentList = getValidGameTargets()
+    local newList = {}
 
-    for _, obj in pairs(currentObjects) do
-        if not registeredObjects[obj] then
-            table.insert(newObjects, obj)
+    for _, item in pairs(currentList) do
+        if not registeredObjects[item.Object] then
+            table.insert(newList, item)
         end
     end
 
     registeredObjects = {}
-    for _, obj in pairs(currentObjects) do
-        registeredObjects[obj] = true
+    for _, item in pairs(currentList) do
+        registeredObjects[item.Object] = true
     end
 
-    for _, obj in pairs(newObjects) do
-        addEntryToList(obj)
+    for _, item in pairs(newList) do
+        createTrackerBillboard(item.Part, item.Object)
     end
 end)
